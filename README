@@ -1,0 +1,21 @@
+Hangman game using socket communication
+============================================================
+ This is Embedded SW project
+ Project Name : Hangman game using socket communication
+ Language : C, Linux
+ team member : ku chang mo, HCW
+-----------------------------------------------------------
+1. step 1
+> connection with soket communication
+
+2. step 2
+> game start(Game program auto start or user's decision)
+
+3. step 3
+> One become an attacker and the other becomes a defender.
+> The attacker givers the defender the wrong words and simple tips.
+
+4. step 4
+> Defenders use tips to write words.
+> Only ten chances.
+
