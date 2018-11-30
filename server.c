@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -11,7 +12,7 @@
 #define MAXPENDING 5
 #define BUFSIZE 1024
 
-main()
+void main(void)
 {
 	int servSockfd;
 	int clntSockfd;
@@ -76,7 +77,7 @@ main()
 					if(recvLen == 0)
 						break;
 
-					recvBuffer[recvLen] = '\0';
+					recvBuffer[recvLen] ='\0';
 					/* print received data */
 					printf("%s\n", recvBuffer);
 				}

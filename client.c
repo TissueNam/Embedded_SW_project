@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -14,7 +15,7 @@ void signalHandler(int signo);
 int sockfd;
 
 /* argv[1] is ip address of the number and point */
-main(int argc, char *argv[])
+void main(int argc, char *argv[])
 {
 	struct sockaddr_in servAddr;
 	char sendBuffer[BUFSIZE], recvBuffer[BUFSIZE];
