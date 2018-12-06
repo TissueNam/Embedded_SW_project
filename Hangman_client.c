@@ -34,10 +34,16 @@ void *rcv_msg(void* arg)
 
 		msg[rcv_cnt] = 0; // EOF
 		if(!strcmp(msg, "fail")) // room is full or server is exit.
-			printf("asdasdasdsad hcw sex");
+			printf("");
 
 		printf("%s",msg);
 	}
+}
+void error_handling(char* msg)
+{
+	fputs(msg, stderr);
+	fputc('\n', stderr);
+	exit(1);
 }
 
 int main(int argc, char *argv[])
@@ -57,7 +63,7 @@ int main(int argc, char *argv[])
 
 	// IPv4 TCP
 	sock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
-	if(sock != 0){  perror("socket() error"); exit(1); }
+	if(sock == -1){  error_handling("socket() error"); }
 	
 	// sockaddr_in init
 	memset(&serv_addr, 0, sizeof(serv_addr));
@@ -67,8 +73,7 @@ int main(int argc, char *argv[])
 
 	if(connect(sock, (struct sockaddr*)&serv_addr, sizeof(serv_addr))== -1)
 	{
-	       	perror("connect error"); 
-		exit(1);
+	       	error_handling("connect error"); 
 	}else{
 		printf("Connected!!\n");
 	}
