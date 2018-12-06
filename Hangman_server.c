@@ -72,14 +72,14 @@ int main(int argc, char *argv[])
 
       while(1)
     {
-        printf("%d\n", serv_sock);
+        printf("KCM=%d\n", serv_sock);
         event_cnt=epoll_wait(epfd, events, 50, -1); // return lists
 
         if(event_cnt==-1)    // Terminate if error
             error_handling("epoll_wait() error!\n");
             //break;
 
-        printf("%d\n", event_cnt);
+        printf("HCW=%d\n", event_cnt);
         for(i=0; i<event_cnt; i++)
         {
             if(events[i].data.fd==serv_sock) // check socket is listening
@@ -98,7 +98,7 @@ int main(int argc, char *argv[])
                     user[user_cnt-1]=clnt_sock;
                     strcpy(message, "Welcome to the Hangman game.");
                     if(user_cnt==1){
-                        strcat(message, "1\n Game will be started when player comes\n");
+                        strcat(message, "1\n Game will be started when players come in\n");
                     }
                     else if(user_cnt==2){
                         strcat(message, "2\nGame will be started soon..\n");
@@ -123,7 +123,7 @@ int main(int argc, char *argv[])
                         challenger[0]=user[0];
                     strcpy(message, "Player's turn!\n");
                     send(challenger[0], message, strlen(message), 0);
-                    strcpy(message, "Please wait until examiner makes quiz\n");
+                    strcpy(message, "Please wait until the examiner makes quiz\n");
                     send(challenger[0], message, strlen(message), 0);
                     strcpy(message, "Your turn!\n");
                     send(examiner[0], message, strlen(message), 0);
@@ -132,6 +132,118 @@ int main(int argc, char *argv[])
                     examiner[1]=1;
                 }
             }
+	     else
+            {    //client socket.. receive
+                str_len=recv(events[i].data.fd, message, BUF_SIZE, 0);
+
+                if(str_len==0)
+                {    // if client go out
+                    epoll_ctl(epfd, EPOLL_CTL_DEL, events[i].data.fd, NULL);
+                    close(events[i].data.fd);
+                    printf("closed socket: %d\n", events[i].data.fd);
+                    user_cnt--;
+                    if(user_cnt==1 && game_flag==1){ // if there is only 1 player, change game_flag. Say 'game is over'
+                        strcpy(message, "\nClient goes out, So game is over.\n");
+                        challenger[1]=0;
+                        examiner[1]=0;
+                        if(user[0]==events[i].data.fd){
+                            strcat(message, "Player 1\n");
+                            strcat(message, "Game will be started when players come in\n");
+                            user[0]=user[1];
+                            send(user[1], message, strlen(message), 0);
+                        }
+                        else{
+                            send(user[0], message, strlen(message), 0);
+                        }
+                        game_flag=0;
+                    }
+                }
+                else if(events[i].data.fd==challenger[0]&&game_flag==1)
+                {
+                    message[str_len-1]=0;
+                    if(strcmp(message, ""))
+                    switch(challenger[1]){
+                        case 1:
+                            if(!strcmp(message, "hint")){    // if client wanna hint
+                                if(hint_cnt==0){    //if there is no chance
+                                    strcpy(message, "You have no chance any more\n");
+                                    strcat(message, "Enter 1 alpahbetic character: ");
+                                    send(events[i].data.fd, message, strlen(message), 0);
+                                }
+                                else{
+                                    strcpy(message, "Player wanna know hint.\n");
+                                    strcat(message, "Enter your hint : ");
+                                    send(examiner[0], message, strlen(message), 0);
+                                    examiner[1]=3;
+                                    challenger[1]=0;
+                                }
+                                break;
+                            }
+                            iscontinue=0; iscorrect=0;
+                            if(strlen(message)==1){//check player's answer
+                                for(j=0;  j<strlen(word); j++){
+                                    if(word[j]==message[0]){
+                                        iscorrect=1;
+                                        question[j]=word[j];
+                                    }
+                                    else if(question[j]=='*')
+                                        iscontinue=1;
+                                }
+                                strcat(message, "\n");
+                                send(examiner[0], "Enter player's answer : ", strlen("Enter player's answer : "), 0);
+                                send(examiner[0], message, strlen(message), 0);
+
+                                if(iscorrect==1)    //if it's collect
+                                    strcpy(message, "Your answer is collect\n");
+                                else{            //if it's wrong
+                                    strcpy(message, "Your answer is wrong!\n");
+                                    hang_cnt++;
+                                }    //notice result
+                                strcat(message, "- Quiz : ");
+                                strcat(message, question); strcat(message, "\n");
+                                strcat(message, drawHangman(hang_cnt));
+                                send(examiner[0], message, strlen(message), 0);
+                                send(challenger[0], message, strlen(message), 0);
+                                if(hang_cnt==6){    //if it's the last chance
+                                    strcpy(message, "This is your last chance.\n");
+                                    send(examiner[0], message, strlen(message), 0);
+                                    send(challenger[0], message, strlen(message), 0);
+                                }
+                                if(iscontinue==0){    //if player give all collect character
+                                    strcpy(message, "Congraturaion!\nPlayer win!\n");
+                                }
+                                else if(hang_cnt==7){    //if player spend all chance
+                                    strcpy(message, "R.I.P\nThe examiner win!\n");
+                                }
+                                else{    //wait player's answer again..
+                                    strcpy(message, "Players are thinking..\n");
+                                    send(examiner[0], message, strlen(message), 0);
+                                    strcpy(message, "* 'Enter 'hint' if you wanna know hint.\nEnter lower case alpahbetic character : ");
+                                    send(challenger[0], message, strlen(message), 0);
+                                    break;
+                                }    //Game over (if client don't go out, game will be start again)
+                                strcat(message, "Game is over.\n");
+                                strcat(message, "Role will be changed in next game.\nWho is the examiner in next game..?\n");
+                                send(examiner[0], message, strlen(message), 0);
+                                send(challenger[0], message, strlen(message), 0);
+                                //Game restart
+                                hint_cnt=HINT; hang_cnt=0;
+                                challenger[0]=examiner[0];
+                                examiner[0]=events[i].data.fd;
+                                strcpy(message, "Player's turn!\n");
+                                strcat(message, "Please wait until the examiner makes quiz\n");
+                                send(challenger[0], message, strlen(message), 0);
+                                strcpy(message, "Your turn!\n");
+                                strcat(message, "Enter the your word in lower-case alphabetic characters : ");
+                                send(examiner[0], message, strlen(message), 0);
+                                examiner[1]=1;
+                                challenger[1]=0;
+                                break;
+                            }
+                        default:
+                        break;
+                    }
+                }
 	}
 
 }
