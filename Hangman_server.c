@@ -40,6 +40,36 @@ int main(int argc, char *argv[])
         printf("Usage : %s <port>\n", argv[0]);
         exit(1);
     }
+    // Memory 
+    events = malloc(sizeof(struct epoll_event)*50);
+
+    //socket(int domain, int type, int protocol)
+    serv_sock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
+    if(serv_sock==-1)
+        error_handling("socket() error!");
+
+    //bind()
+    //struct Initialization (garbage value clear)
+    memset(&serv_addr, 0, sizeof(serv_addr));
+    //struct serv_addr value
+    serv_addr.sin_family=AF_INET;
+    serv_addr.sin_addr.s_addr=htonl(INADDR_ANY);
+    serv_addr.sin_port=htons(atoi(argv[1]));
+
+    if(bind(serv_sock, (struct sockaddr*)&serv_addr, sizeof(serv_addr))==-1)
+        error_handling("bind() error!");
+
+    if(listen(serv_sock, 5)==-1)
+        error_handling("listen() error!");
+
+    //accept()
+    clnt_addr_size=sizeof(clnt_addr);
+
+    epfd=epoll_create(50);    // epoll (event registration / Max : 50)
+    event.events=EPOLLIN;    // event type
+    event.data.fd=serv_sock;
+    epoll_ctl(epfd, EPOLL_CTL_ADD, serv_sock, &event);    //event registration
+
 }
 
 void error_handling(char *message)
