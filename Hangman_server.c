@@ -244,6 +244,71 @@ int main(int argc, char *argv[])
                         break;
                     }
                 }
+		  else if(events[i].data.fd==examiner[0]&&game_flag==1)
+                {
+                    message[str_len-1]=0;
+                    if(strcmp(message, ""))
+                    switch(examiner[1]){
+                        case 1:
+                            strcpy(word, message);
+                            printf("%s\n", word);
+                            strcpy(message, "**Quiz : ");
+                            strcat(message, word);
+                            strcat(message, "\nif it is collect .. Enter 'y' / or not Enter 'n' : ");
+                            send(events[i].data.fd, message, strlen(message), 0);
+                            examiner[1]=2;
+                            break;
+                        case 2:    // check your quiz(word)
+                            if(!strcmp(message, "y")){
+                                examiner[1]=0;
+                                challenger[1]=1;
+                                for(j=0;  j<strlen(word); j++)
+                                    question[j]='*';
+                                question[j]='\0';
+
+                                strcpy(message, "- Quiz : ");
+                                strcat(message, question); strcat(message, "\n");
+                                send(examiner[0], message, strlen(message), 0);
+                                send(challenger[0], message, strlen(message), 0);
+                                    strcpy(message, drawHangman(0));
+                                send(examiner[0], message, strlen(message), 0);
+                                send(challenger[0], message, strlen(message), 0);
+                                    strcpy(message, "Players are thinking.\n");
+                                send(examiner[0], message, strlen(message), 0);
+                                strcpy(message, "Enter lower-case alphabetic character : ");
+                                send(challenger[0], message, strlen(message), 0);
+                            }
+                            else if(!strcmp(message, "n")){
+                                strcpy(message, "Enter the your word in lower-case alphabetic characters : ");
+                                send(examiner[0], message, strlen(message), 0);
+                                examiner[1]=1;
+                            }
+                            else{
+                                strcpy(message, "Please enter again.\n If it is collet.. Enter 'y' / or not Enter 'n' : ");
+                                send(examiner[0], message, strlen(message), 0);
+                            }
+                            break;
+                        case 3:    //If player wanna know hint
+                            strcat(message, "\n");
+                            send(challenger[0], message, strlen(message), 0);
+                            hint_cnt--;
+                            strcpy(message, "Players are thinking.\n");
+                            send(examiner[0], message, strlen(message), 0);
+                            strcpy(message, "Enter lower-case alphabetic character : ");
+                            send(challenger[0], message, strlen(message), 0);
+                            examiner[1]=0;
+                            challenger[1]=1;
+                            break;
+                        default:
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    close(serv_sock);
+    return 0;
 	}
 
 }
