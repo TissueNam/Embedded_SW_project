@@ -70,6 +70,45 @@ int main(int argc, char *argv[])
     event.data.fd=serv_sock;
     epoll_ctl(epfd, EPOLL_CTL_ADD, serv_sock, &event);    //event registration
 
+      while(1)
+    {
+        printf("%d\n", serv_sock);
+        event_cnt=epoll_wait(epfd, events, 50, -1); // return lists
+
+        if(event_cnt==-1)    // Terminate if error
+            error_handling("epoll_wait() error!\n");
+            //break;
+
+        printf("%d\n", event_cnt);
+        for(i=0; i<event_cnt; i++)
+        {
+            if(events[i].data.fd==serv_sock) // check socket is listening
+            {    //accept
+                clnt_sock=accept(serv_sock, (struct sockaddr*)&clnt_addr, &clnt_addr_size);
+                if(clnt_sock==-1)
+                    error_handling("accept() error!");
+                else
+                    printf("connected client: %d\n", clnt_sock);
+                event.events=EPOLLIN;
+                event.data.fd=clnt_sock;
+                epoll_ctl(epfd, EPOLL_CTL_ADD, clnt_sock, &event);
+
+                user_cnt++;
+                if(user_cnt<=2){
+                    user[user_cnt-1]=clnt_sock;
+                    strcpy(message, "Welcome to the Hangman game.");
+                    if(user_cnt==1){
+                        strcat(message, "1\n Game will be started when player comes\n");
+                    }
+                    else if(user_cnt==2){
+                        strcat(message, "2\nGame will be started soon..\n");
+                        send(user[0], "Game will be started..\n", strlen("Game will be started..\n"), 0);
+                        game_flag=1;
+                    }
+                    send(clnt_sock, message, strlen(message), 0);
+                }
+	    }
+
 }
 
 void error_handling(char *message)
