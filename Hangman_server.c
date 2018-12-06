@@ -107,7 +107,32 @@ int main(int argc, char *argv[])
                     }
                     send(clnt_sock, message, strlen(message), 0);
                 }
-	    }
+		 else{    // if 2 players come
+                    send(clnt_sock, "fail", strlen("fail"), 0);
+                }
+                    if(game_flag==1&&user_cnt==2){    // Game start
+                    hint_cnt=HINT; hang_cnt=0;
+                    strcpy(message, "Who is the examiner..?\n");
+                    send(user[0], message, strlen(message), 0);
+                    // create random number
+                    srand(time(NULL));
+                    examiner[0]=user[rand()%2];
+                    if(examiner[0]==user[0])
+                        challenger[0]=user[1];
+                    else
+                        challenger[0]=user[0];
+                    strcpy(message, "Player's turn!\n");
+                    send(challenger[0], message, strlen(message), 0);
+                    strcpy(message, "Please wait until examiner makes quiz\n");
+                    send(challenger[0], message, strlen(message), 0);
+                    strcpy(message, "Your turn!\n");
+                    send(examiner[0], message, strlen(message), 0);
+                    strcpy(message, "Enter the your word in lower-case alpahbetic characters : ");
+                    send(examiner[0], message, strlen(message), 0);
+                    examiner[1]=1;
+                }
+            }
+	}
 
 }
 
