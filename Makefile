@@ -1,20 +1,12 @@
-all: client server
+all: Hangman_client Hangman_server
 
-client: client.o
-	gcc -o client client.o
+Hangman_client: Hangman_client.c
+	gcc -o Hangman_client Hangman_client.c -lpthread
 
-server: server.o
-	gcc -o server server.o
-
-client.o: client.c
-	gcc -c client.c
-
-server.o: server.c
-	gcc -c server.c
-
+Hangman_server: Hangman_server.c
+	gcc -o Hangman_server Hangman_server.c -lpthread
 clean:
-	rm -f -v server
-	rm -f -v client
-	rm -f -v server.o
-	rm -f -v client.o
-	rm -f -v libfuncs.a
+	rm -f -v Hangman_server
+	rm -f -v Hangman_client
+	rm -f -v Hangman_server.o
+	rm -f -v Hangman_client.o

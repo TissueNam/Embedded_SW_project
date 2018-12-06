@@ -81,3 +81,4 @@ char* drawHangman(int num){
         hangman = "drawing error\n";
         break;
     }
+}

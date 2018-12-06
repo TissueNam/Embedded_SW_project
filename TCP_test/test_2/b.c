@@ -1,4 +1,3 @@
-#include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <sys/types.h>
@@ -32,6 +31,7 @@ main(int argc, char *argv[])
        perror("sock failed");
        exit(1);
     }
+
     /* servAddr을 0으로 초기화 */
     memset(&servAddr, 0, sizeof(servAddr));
     /* servAddr에 주소 정보 저장 */

@@ -1,4 +1,3 @@
-#include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <sys/types.h>
@@ -28,8 +27,6 @@ main()
        perror("sock failed");
        exit(1);
     }
-    int option = 1;
-    setsockopt( servSockfd, SOL_SOCKET, SO_REUSEADDR, &option, sizeof(option) );
 
     /* servAddr를 0으로 초기화 */
     memset(&servAddr, 0, sizeof(servAddr));
