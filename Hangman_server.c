@@ -12,6 +12,9 @@
 
 #define HINT 3
 
+void error_handling(char *message);
+char* drawHangman(int num);
+
 int main(int argc, char *argv[])
 {
     int serv_sock, clnt_sock;
@@ -309,8 +312,6 @@ int main(int argc, char *argv[])
 
     close(serv_sock);
     return 0;
-	}
-
 }
 
 void error_handling(char *message)
