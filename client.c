@@ -15,14 +15,14 @@ void signalHandler(int signo);
 int sockfd;
 
 /* argv[1]은 수와 점 표기의 IP 주소 */
-main(int argc, char *argv[])
+int main(int argc, char *argv[])
 {
     struct sockaddr_in servAddr;
     char sendBuffer[BUFSIZE], recvBuffer[BUFSIZE];
     int recvLen;
     pid_t pid;
 
-    if(argc != 2) {
+    if(argc != 3) {
        fprintf(stderr, "Usage: %s IP_address\n", argv[0]);
        exit(1);
     }
@@ -37,7 +37,7 @@ main(int argc, char *argv[])
     /* servAddr에 주소 정보 저장 */
     servAddr.sin_family = AF_INET;
     servAddr.sin_addr.s_addr = inet_addr(argv[1]);
-    servAddr.sin_port = htons(PORT);
+    servAddr.sin_port = htons(atoi(argv[2]));
 
     /* servAddr 서버에 통신을 요청 */
     if(connect(sockfd, (struct sockaddr*)&servAddr, sizeof(servAddr)) == -1) {

@@ -8,11 +8,11 @@
 #include <unistd.h>
 #include <errno.h>
 
-#define PORT 7777   /* 포트 번호 */
+#define PORT 9999   /* 포트 번호 */
 #define MAXPENDING 5   /* 클라이언트 요구가 대기하는 큐의 크기 */
 #define BUFSIZE 1024   /* 버퍼의 크기 */
 
-main()
+int main(int argc, char* argv[])
 {
     int servSockfd;
     int clntSockfd;
@@ -106,5 +106,6 @@ main()
        }
        close(clntSockfd);
     }
+    return 0;
 }
 

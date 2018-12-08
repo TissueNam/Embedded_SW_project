@@ -48,9 +48,20 @@ int main(int argc, char* argv[])
 		perror("listen() error");
 		exit(0);
 	}
+	while(1)
+	{
+		clnt_sock=accept(serv_sock, (struct sockaddr*)&clnt_addr, &clnt_addr_size);
+		printf("* %s:%d want to connect\n", inet_ntoa(clnt_addr.sin_addr),ntohs(clinet_adr.sin_port));
+		if(clnt_sock == -1)
+		{
+			perror("accept() error");
+			exit(0);
+		}else{
+			printf("connected client: %d\n", clnt_sock.sin_addr);
+		}
 
-	clnt_sock=accept(serv_sock, (struct sockaddr*)&clnt_addr, &clnt_addr_size);
-	printf("* %s:%d want to connect\n", inet_ntoa(clnt_addr.sin_addr),ntohs(clinet_adr.sin_port));
+	}
 
+	close(serv_sock);
 	return 0;
 }
