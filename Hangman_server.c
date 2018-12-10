@@ -8,12 +8,13 @@
 #include <sys/time.h>
 #include <sys/epoll.h>
 
+#include "defender.h"
+#include "serverlib.h"
+
 #define BUF_SIZE 1024
 #define PLAYER	2
 #define HINT 3
 
-void error_handling(char *message);
-char* drawHangman(int num);
 
 int main(int argc, char *argv[])
 {
@@ -46,28 +47,12 @@ int main(int argc, char *argv[])
         printf("Usage : %s <port>\n", argv[0]);
         exit(1);
     }
-    // Memory 
+    // event Memory 
     events = malloc(sizeof(struct epoll_event)*50);
-
-    //socket(int domain, int type, int protocol)
-    serv_sock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
-    if(serv_sock==-1)
-        error_handling("socket() error!");
-
-    //bind()
-    //struct Initialization (garbage value clear)
-    memset(&serv_addr, 0, sizeof(serv_addr));
-    //struct serv_addr value
-    serv_addr.sin_family=AF_INET;
-    serv_addr.sin_addr.s_addr=htonl(INADDR_ANY);
-    serv_addr.sin_port=htons(atoi(argv[1]));
-
-    if(bind(serv_sock, (struct sockaddr*)&serv_addr, sizeof(serv_addr))==-1)
-        error_handling("bind() error!");
-
-    if(listen(serv_sock, 5)==-1)
-        error_handling("listen() error!");
-
+    
+    //server socket create, bin, listen
+    init_server_socket(&serv_sock, &serv_addr, argv[1]);
+    
     //accept()
     clnt_addr_size=sizeof(clnt_addr);
 
@@ -199,7 +184,7 @@ int main(int argc, char *argv[])
                                     //strcat(message, (char) hint_cnt );
 				    strcat(message, "Enter your hint : ");
                                     send(examiner[0], message, strlen(message), 0);
-                                    examiner[1]=3;
+                                    examiner[1]=4;
                                     challenger[1]=0;
                                 }
                                 break;
@@ -227,7 +212,8 @@ int main(int argc, char *argv[])
                                     hang_cnt++;
                                 }    //notice result
                                 strcat(message, "- Quiz : ");
-                                strcat(message, question); strcat(message, "\n");
+                                strcat(message, question); strcat(message, "\ninitial HINT : ");
+				strcat(message, init_hint); strcat(message, "\n");
                                 strcat(message, drawHangman(hang_cnt));
                                 send(examiner[0], message, strlen(message), 0);
                                 send(challenger[0], message, strlen(message), 0);
@@ -269,39 +255,30 @@ int main(int argc, char *argv[])
                             }else{ break;}
                     }
                 }
-		  else if(events[i].data.fd==examiner[0]&&game_flag==1)
+		  else if(events[i].data.fd==examiner[0] && game_flag==1)
                 {
                     message[str_len-1]=0;
                     if(strcmp(message, ""))
                     switch(examiner[1]){
                         case 1:
-                            strcpy(word, message);
-                            printf("%s\n", word);
-			    
-			    //strcpy(message, "Intial Hint plz.(category or hint) : \n");
-			    //send(examiner[0], message, strlen(message));
-
+                            
+			    strcpy(word, message);
+                            printf("%s\n",word);
                             strcpy(message, "**Quiz : ");
                             strcat(message, word);
-                            strcat(message, "\nif it is collect .. Enter 'y' / or not Enter 'n' : ");
-                            send(events[i].data.fd, message, strlen(message), 0);
-                            examiner[1]=2;
-                            
-			    //strcat(message, "\nIntial Hint plz.(ca) : \n ");
-                            //send(events[i].data.fd, message, strlen(message), 0);
-                            //examiner[1]=2;
+			    strcat(message, "\nIntial Hint plz.(category or hint, 'spyderman' is 'hero') : ");
+			    send(events[i].data.fd, message, strlen(message), 0);
+				examiner[1]=2;
 			    
 			    break;
-			//case 2:
-				
-			    //strcpy(message, "Intial Hint plz.(category or hint) : \n");
-			    //send(examiner[0], message, strlen(message), 0);
-                            
-			  //  strcat(message, "\nif it is collect .. Enter 'y' / or not Enter 'n' : ");
-                           // send(events[i].data.fd, message, strlen(message), 0);
-			   // examiner[1]=3;
-			   // break;
-                        case 2:    // check your quiz(word)
+			case 2:
+			    strcpy(init_hint, message);
+			    char str_init_hint[BUF_SIZE] = "** Init hint : "; strcat(str_init_hint, message); strcat(str_init_hint, "\n");
+			    send(examiner[0], str_init_hint, strlen(str_init_hint), 0);
+			    send(events[i].data.fd, "\nif it is collect .. Enter 'y' / or not Enter 'n' : ", strlen("\nif it is collect .. Enter 'y' / or not Enter 'n' : " ), 0);
+			    examiner[1]=3;
+			    break;
+                        case 3:    // check your quiz(word)
                             if(!strcmp(message, "y")){
                                 examiner[1]=0;
                                 challenger[1]=1;
@@ -310,9 +287,11 @@ int main(int argc, char *argv[])
                                 question[j]='\0';
 
                                 strcpy(message, "- Quiz : ");
-                                strcat(message, question); strcat(message, "\n");
+                                strcat(message, question); strcat(message, "\n Init hint!! : ");
+				strcat(message,init_hint); strcat(message, "\n");
                                 send(examiner[0], message, strlen(message), 0);
                                 send(challenger[0], message, strlen(message), 0);
+
                                     strcpy(message, drawHangman(0));
                                 send(examiner[0], message, strlen(message), 0);
                                 send(challenger[0], message, strlen(message), 0);
@@ -352,45 +331,4 @@ int main(int argc, char *argv[])
 
     close(serv_sock);
     return 0;
-}
-
-void error_handling(char *message)
-{
-    fputs(message, stderr);
-    fputc('\n', stderr);
-    exit(1);
-}
-
-char* drawHangman(int num){
-    char* hangman={ 0 };
-    switch (num)
-    {
-        case 0:
-        hangman = "┌───┐\n│\n│\n│\n│\n└──────\n";
-        break;
-        case 1:
-        hangman = "┌───┐\n│　○\n│\n│\n│\n└──────\n";
-        break;
-        case 2:
-        hangman = "┌───┐\n│　○\n│　 |\n│\n│\n└──────\n";
-        break;
-        case 3:
-        hangman = "┌───┐\n│　○\n│　/|\n│\n│\n└──────\n";
-        break;
-        case 4:
-        hangman = "┌───┐\n│　○\n│　/|＼\n│　\n│\n└──────\n";
-        break;
-        case 5:
-        hangman = "┌───┐\n│　○\n│　/|＼\n│　/\n│\n└──────\n";
-        break;
-        case 6:
-        hangman = "┌───┐\n│　○\n│　/|＼\n│　/＼\n│\n└──────\n";
-        break;
-        case 7:
-        hangman = "┌───┐\n│　○\n│　 X\n│　/|＼\n│　/＼\n└──────\n";
-        break;
-        default:
-        hangman = "drawing error\n";
-        break;
-    }
 }
