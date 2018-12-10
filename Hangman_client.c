@@ -1,44 +1,15 @@
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
-#include  <stdlib.h>
+#include <stdlib.h>
 #include <sys/socket.h>
 #include <pthread.h>
 #include <arpa/inet.h>
 #include <unistd.h>
 
+#include "hanglib.h"
+
 #define BUF_SIZE 1024
-
-void *send_msg(void* arg)
-{
-	int sock = *((int*)arg);
-	int str_len;
-	char msg[BUF_SIZE];
-	while(1)
-	{
-		fgets(msg, BUF_SIZE, stdin);
-		str_len = write(sock, msg, strlen(msg));
-	}
-}
-
-void *rcv_msg(void* arg)
-{
-	int sock = *((int*)arg);
-	int rcv_cnt;
-	char msg[BUF_SIZE];
-
-	while(1)
-	{	// message read
-		rcv_cnt = read(sock, &msg, BUF_SIZE-1);
-		if(rcv_cnt == -1) { perror("read error"); exit(1); }
-
-		msg[rcv_cnt] = 0; // EOF
-		if(!strcmp(msg, "fail")) // room is full or server is exit.
-			printf("asdasdasdsad hcw sex");
-
-		printf("%s",msg);
-	}
-}
 
 int main(int argc, char *argv[])
 {
@@ -57,7 +28,11 @@ int main(int argc, char *argv[])
 
 	// IPv4 TCP
 	sock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
+<<<<<<< HEAD
 	if(sock == -1){  perror("socket() error"); exit(1); }
+=======
+	if(sock == -1){  error_handling("socket() error"); }
+>>>>>>> 7f9ca9d223b50e9099ecbdb78cf0a3a53875fa4f
 	
 	// sockaddr_in init
 	memset(&serv_addr, 0, sizeof(serv_addr));
@@ -67,8 +42,8 @@ int main(int argc, char *argv[])
 
 	if(connect(sock, (struct sockaddr*)&serv_addr, sizeof(serv_addr))== -1)
 	{
-	       	perror("connect error"); 
-		exit(1);
+	       	error_handling("connect error");
+	       perror("connect()");	
 	}else{
 		printf("Connected!!\n");
 	}

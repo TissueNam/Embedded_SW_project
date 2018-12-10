@@ -8,7 +8,7 @@
 #include <unistd.h>
 #include <errno.h>
 
-#define PORT 9999   /* 포트 번호 */
+#define PORT 12345   /* 포트 번호 */
 #define MAXPENDING 5   /* 클라이언트 요구가 대기하는 큐의 크기 */
 #define BUFSIZE 1024   /* 버퍼의 크기 */
 
@@ -24,7 +24,7 @@ int main(int argc, char* argv[])
     int recvLen;
 
     /* 소켓 생성 */
-    if((servSockfd=socket(AF_INET, SOCK_STREAM, 0)) == -1) {
+    if((servSockfd=socket(PF_INET, SOCK_STREAM, IPPROTO_TCP)) == -1) {
        perror("sock failed");
        exit(1);
     }
