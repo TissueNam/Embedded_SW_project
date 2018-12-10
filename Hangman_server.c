@@ -67,15 +67,24 @@ int main(int argc, char *argv[])
 	
       while(1)
     {
+<<<<<<< HEAD
+        printf("Server socket = %d\n", serv_sock);
+        event_cnt=epoll_wait(epfd, events, 50, -1); // return lists
+=======
         printf("server socket fd = %d\n", serv_sock);
         event_cnt=epoll_wait(epfd, events, 50, -1); // return lists, tiemout = infinite
+>>>>>>> 7f9ca9d223b50e9099ecbdb78cf0a3a53875fa4f
 
         if(event_cnt==-1)    // Terminate if error
             error_handling("epoll_wait() error!\n");
             //break;	//+)  it is dangerous.
 
+<<<<<<< HEAD
+        printf("Event %d\n", event_cnt);
+=======
 	// event_cnt = 1 , game start and accept client socket.
         printf("Event = %d\n", event_cnt); 
+>>>>>>> 7f9ca9d223b50e9099ecbdb78cf0a3a53875fa4f
         for(i=0; i<event_cnt; i++)
         {
             if(events[i].data.fd==serv_sock) // check server socket is listening. server sockter event

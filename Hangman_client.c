@@ -28,7 +28,11 @@ int main(int argc, char *argv[])
 
 	// IPv4 TCP
 	sock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
+<<<<<<< HEAD
+	if(sock == -1){  perror("socket() error"); exit(1); }
+=======
 	if(sock == -1){  error_handling("socket() error"); }
+>>>>>>> 7f9ca9d223b50e9099ecbdb78cf0a3a53875fa4f
 	
 	// sockaddr_in init
 	memset(&serv_addr, 0, sizeof(serv_addr));
