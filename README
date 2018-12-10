@@ -1,21 +1,36 @@
-Hangman game using socket communication
-============================================================
- This is Embedded SW project
- Project Name : Hangman game using socket communication
- Language : C, Linux
- team member : ku chang mo, HCW
------------------------------------------------------------
+************************************************************************************************************************
+
+Hello ! 
+Our member are Ku chang mo and Hyun cheol woong.
+We will make hangman game.
+We studied Socket progarmming and Library,
+so we decided to use socket, static library and etc.
+We called it "Embedded Soft Enginerring project".
+Thank you.
+
+************************************************************************************************************************
+
+Project Name : Hangman game using socket communication
+Language : C, Linux
+Team member : Ku chang mo(201401636), Hyun cheol woong(201401676)
+
+************************************************************************************************************************
+
 1. step 1
-> connection with soket communication
+> The server must be created first with port number.
+> connect to server with socket communication
 
 2. step 2
-> game start(Game program auto start or user's decision)
+> Game will be started automatically when 2 people are connceted with server.
+> System will make random number and decide who is the examiner(attacker) and the challenger.(defender)
 
 3. step 3
-> One become an attacker and the other becomes a defender.
-> The attacker givers the defender the wrong words and simple tips.
+> The challenger will have 10 chances after he examiner makes 1 word.
+> The examiner can give some hints when the game is started.
+> If the challenger want to know hint, The examiner can tell you hints after the challenger write 'hint'.
 
 4. step 4
-> Defenders use tips to write words.
-> Only ten chances.
+> If the challenger fails to anwering, The hangman will die.
+> System will change the turn of attacker and defender automatically.
 
+************************************************************************************************************************

@@ -75,14 +75,14 @@ int main(int argc, char *argv[])
 
       while(1)
     {
-        printf("KCM=%d\n", serv_sock);
+        printf("Server socket = %d\n", serv_sock);
         event_cnt=epoll_wait(epfd, events, 50, -1); // return lists
 
         if(event_cnt==-1)    // Terminate if error
             error_handling("epoll_wait() error!\n");
             //break;
 
-        printf("HCW=%d\n", event_cnt);
+        printf("Event %d\n", event_cnt);
         for(i=0; i<event_cnt; i++)
         {
             if(events[i].data.fd==serv_sock) // check socket is listening

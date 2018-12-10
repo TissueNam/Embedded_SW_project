@@ -57,7 +57,7 @@ int main(int argc, char *argv[])
 
 	// IPv4 TCP
 	sock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
-	if(sock != 0){  perror("socket() error"); exit(1); }
+	if(sock == -1){  perror("socket() error"); exit(1); }
 	
 	// sockaddr_in init
 	memset(&serv_addr, 0, sizeof(serv_addr));
